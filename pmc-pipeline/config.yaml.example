@@ -1,0 +1,87 @@
+ncbi:
+  api_key: ""
+  email: ""
+  tool_name: "pmc_oncology_pipeline"
+  rate_limit: 3  # Bumped to 10 when API key is present
+
+pipeline:
+  max_workers: 50
+  batch_size_search: 10000
+  batch_size_id_convert: 200
+  batch_size_oa_check: 25
+  batch_size_download: 50
+  max_retries: 5
+  retry_base_delay: 2.0
+  retry_max_delay: 120.0
+  request_timeout: 60
+  download_timeout: 300
+  discovery_limit: null  # default: catalog all matching papers
+  download_limit: 10000  # default expansion size
+
+search:
+  date_range_years: 5
+  queries:
+    rct: |
+      ("Neoplasms"[MeSH Terms] OR "Cancer"[Title/Abstract] OR "Oncology"[Title/Abstract]
+      OR "Carcinoma"[MeSH Terms] OR "Lymphoma"[MeSH Terms] OR "Leukemia"[MeSH Terms]
+      OR "Melanoma"[MeSH Terms] OR "Sarcoma"[MeSH Terms] OR "Tumor"[Title/Abstract])
+      AND "Randomized Controlled Trial"[Publication Type]
+      AND "Humans"[MeSH Terms]
+      AND "English"[Language]
+      AND "pubmed pmc"[sb]
+    meta_analysis: |
+      ("Neoplasms"[MeSH Terms] OR "Cancer"[Title/Abstract] OR "Oncology"[Title/Abstract]
+      OR "Carcinoma"[MeSH Terms] OR "Lymphoma"[MeSH Terms] OR "Leukemia"[MeSH Terms]
+      OR "Melanoma"[MeSH Terms] OR "Sarcoma"[MeSH Terms] OR "Tumor"[Title/Abstract])
+      AND "Meta-Analysis"[Publication Type]
+      AND "Humans"[MeSH Terms]
+      AND "English"[Language]
+      AND "pubmed pmc"[sb]
+    systematic_review: |
+      ("Neoplasms"[MeSH Terms] OR "Cancer"[Title/Abstract] OR "Oncology"[Title/Abstract]
+      OR "Carcinoma"[MeSH Terms] OR "Lymphoma"[MeSH Terms] OR "Leukemia"[MeSH Terms]
+      OR "Melanoma"[MeSH Terms] OR "Sarcoma"[MeSH Terms] OR "Tumor"[Title/Abstract])
+      AND systematic[sb]
+      AND "Humans"[MeSH Terms]
+      AND "English"[Language]
+      AND "pubmed pmc"[sb]
+    guideline: |
+      ("Neoplasms"[MeSH Terms] OR "Cancer"[Title/Abstract] OR "Oncology"[Title/Abstract]
+      OR "Carcinoma"[MeSH Terms] OR "Lymphoma"[MeSH Terms] OR "Leukemia"[MeSH Terms]
+      OR "Melanoma"[MeSH Terms] OR "Sarcoma"[MeSH Terms] OR "Tumor"[Title/Abstract])
+      AND ("Practice Guideline"[Publication Type] OR "Guideline"[Publication Type])
+      AND "Humans"[MeSH Terms]
+      AND "English"[Language]
+      AND "pubmed pmc"[sb]
+
+paths:
+  data_dir: "data"
+  metadata_dir: "data/metadata"
+  xml_dir: "data/xml"
+  json_dir: "data/json"
+  logs_dir: "data/logs"
+  checkpoints_dir: "data/checkpoints"
+  database: "data/metadata/papers.db"
+
+excluded_article_types:
+  - "editorial"
+  - "letter"
+  - "comment"
+  - "case-report"
+  - "brief-report"
+  - "meeting-report"
+  - "abstract"
+  - "reply"
+  - "correction"
+  - "retraction"
+  - "expression-of-concern"
+
+allowed_article_types:
+  - "research-article"
+  - "review-article"
+  - "guideline"
+  - "practice-guideline"
+
+species:
+  allow_mixed_species: false
+  allow_unindexed_species: true

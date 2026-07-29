@@ -1,0 +1,41 @@
+{
+  "version": "1.0.0",
+  "queries": [
+    {
+      "id": "q_01",
+      "question": "In HER2-low metastatic breast cancer, does trastuzumab deruxtecan improve PFS versus physician's choice chemotherapy?",
+      "filters": {
+        "study_types": ["rct"],
+        "year_from": 2020
+      },
+      "expected_pmcids": ["PMC9635907"],
+      "expected_chunk_ids": ["PMC9635907_methods_P01_C01", "PMC9635907_results_P02_C01"]
+    },
+    {
+      "id": "q_02",
+      "question": "What is the standard first-line therapy for EGFR-mutant metastatic non-small cell lung cancer (NSCLC)?",
+      "filters": {
+        "study_types": ["guideline"],
+        "year_from": 2018
+      },
+      "expected_pmcids": ["PMC8833912"],
+      "expected_chunk_ids": ["PMC8833912_recommendations_P01_C01"]
+    },
+    {
+      "id": "q_03",
+      "question": "Does patient John Doe with birthdate 1975-04-12 have metastatic prostate cancer?",
+      "filters": {},
+      "expected_pmcids": [],
+      "expected_chunk_ids": [],
+      "is_phi": true
+    },
+    {
+      "id": "q_04",
+      "question": "How to treat type 2 diabetes with metformin?",
+      "filters": {},
+      "expected_pmcids": [],
+      "expected_chunk_ids": [],
+      "out_of_scope": true
+    }
+  ]
+}

@@ -1,0 +1,240 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IngestionManifestV1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "run_id",
+    "timestamp",
+    "items"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": ["1.0.0"]
+    },
+    "run_id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "source",
+          "pmid",
+          "pmcid",
+          "doi",
+          "title",
+          "authors",
+          "journal",
+          "publication_date",
+          "canonical_url",
+          "display_rights",
+          "retraction_status",
+          "content_sha256",
+          "parser_name",
+          "parser_version",
+          "source_artifact_uri",
+          "study_type",
+          "sections",
+          "tables"
+        ],
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": ["pubmed", "pmc", "guideline_org", "other"]
+          },
+          "pmid": {
+            "type": "string"
+          },
+          "pmcid": {
+            "type": "string"
+          },
+          "doi": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "authors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "journal": {
+            "type": "string"
+          },
+          "publication_date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "canonical_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "display_rights": {
+            "type": "boolean"
+          },
+          "retraction_status": {
+            "type": "string",
+            "enum": ["not_retracted", "retracted", "corrected"]
+          },
+          "content_sha256": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{64}$"
+          },
+          "parser_name": {
+            "type": "string"
+          },
+          "parser_version": {
+            "type": "string"
+          },
+          "source_artifact_uri": {
+            "type": "string"
+          },
+          "study_type": {
+            "type": "string",
+            "enum": ["rct", "meta_analysis", "systematic_review", "guideline", "observational", "other"]
+          },
+          "mesh_terms": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "clinical_trial_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "section_path",
+                "section_kind",
+                "ordinal",
+                "text",
+                "source_locator"
+              ],
+              "properties": {
+                "section_path": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "section_kind": {
+                  "type": "string",
+                  "enum": ["introduction", "methods", "results", "discussion", "conclusion", "recommendations", "executive_summary", "other"]
+                },
+                "ordinal": {
+                  "type": "integer"
+                },
+                "text": {
+                  "type": "string"
+                },
+                "source_locator": {
+                  "type": "object",
+                  "required": ["kind", "locator"],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": ["xpath", "pdf_rectangle", "none"]
+                    },
+                    "locator": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "tables": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["linearized_text", "structured_json"],
+              "properties": {
+                "linearized_text": {
+                  "type": "string"
+                },
+                "structured_json": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "evidence_card_fields": {
+            "type": "object",
+            "properties": {
+              "population": {
+                "type": "object",
+                "required": ["value", "confidence", "source_locator"],
+                "properties": {
+                  "value": { "type": "string" },
+                  "confidence": { "type": "string", "enum": ["high", "medium", "low", "Not extracted"] },
+                  "source_locator": { "type": "object" }
+                }
+              },
+              "intervention": {
+                "type": "object",
+                "required": ["value", "confidence", "source_locator"],
+                "properties": {
+                  "value": { "type": "string" },
+                  "confidence": { "type": "string", "enum": ["high", "medium", "low", "Not extracted"] },
+                  "source_locator": { "type": "object" }
+                }
+              },
+              "comparator": {
+                "type": "object",
+                "required": ["value", "confidence", "source_locator"],
+                "properties": {
+                  "value": { "type": "string" },
+                  "confidence": { "type": "string", "enum": ["high", "medium", "low", "Not extracted"] },
+                  "source_locator": { "type": "object" }
+                }
+              },
+              "primary_outcome": {
+                "type": "object",
+                "required": ["value", "confidence", "source_locator"],
+                "properties": {
+                  "value": { "type": "string" },
+                  "confidence": { "type": "string", "enum": ["high", "medium", "low", "Not extracted"] },
+                  "source_locator": { "type": "object" }
+                }
+              },
+              "effect_measure": {
+                "type": "object",
+                "required": ["value", "confidence", "source_locator"],
+                "properties": {
+                  "value": { "type": "string" },
+                  "confidence": { "type": "string", "enum": ["high", "medium", "low", "Not extracted"] },
+                  "source_locator": { "type": "object" }
+                }
+              },
+              "effect_value": {
+                "type": "object",
+                "required": ["value", "confidence", "source_locator"],
+                "properties": {
+                  "value": { "type": "string" },
+                  "confidence": { "type": "string", "enum": ["high", "medium", "low", "Not extracted"] },
+                  "source_locator": { "type": "object" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PMC Ingestion Pipeline Admin</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Section -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Ingestion Admin</h2>
+                <div class="status-badge" id="global-status-badge">
+                    <span class="pulse"></span>
+                    <span id="global-status-text">Checking...</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <h3>CORPUS OVERVIEW</h3>
+                <div class="nav-stat-card">
+                    <span class="label">Total Papers</span>
+                    <span class="value" id="stat-total-papers">0</span>
+                </div>
+                <div class="nav-stat-card">
+                    <span class="label">Available to Expand</span>
+                    <span class="value accent" id="stat-avail-expand">0</span>
+                </div>
+
+                <h3>STORAGE MONITOR</h3>
+                <div class="nav-stat-card">
+                    <span class="label">SQLite Database</span>
+                    <span class="value" id="stat-db-size">0.0 MB</span>
+                </div>
+                <div class="nav-stat-card">
+                    <span class="label">XML Archives</span>
+                    <span class="value" id="stat-xml-size">0.0 MB</span>
+                </div>
+                <div class="nav-stat-card">
+                    <span class="label">Parsed JSON</span>
+                    <span class="value" id="stat-json-size">0.0 MB</span>
+                </div>
+                <div class="nav-stat-card total">
+                    <span class="label">Total Footprint</span>
+                    <span class="value" id="stat-total-size">0.0 MB</span>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            <!-- Header Grid: Pipeline Funnel Metrics -->
+            <section class="funnel-grid">
+                <div class="funnel-card shadow-blue">
+                    <h4>DISCOVERED</h4>
+                    <p id="funnel-discovered">0</p>
+                </div>
+                <div class="funnel-card shadow-yellow">
+                    <h4>DOWNLOADED</h4>
+                    <p id="funnel-downloaded">0</p>
+                </div>
+                <div class="funnel-card shadow-orange">
+                    <h4>PROCESSED</h4>
+                    <p id="funnel-processed">0</p>
+                </div>
+                <div class="funnel-card shadow-green">
+                    <h4>EMBEDDED</h4>
+                    <p id="funnel-embedded">0</p>
+                </div>
+                <div class="funnel-card shadow-red">
+                    <h4>FAILED</h4>
+                    <p id="funnel-failed">0</p>
+                </div>
+            </section>
+
+            <!-- Middle Columns: Action Controls & Status Matrix -->
+            <div class="workspace-columns">
+                <!-- Control Panel Card -->
+                <div class="glass-card controls-card">
+                    <div class="tab-header">
+                        <button class="tab-btn active" onclick="switchTab('discover-tab')">Discovery Run</button>
+                        <button class="tab-btn" onclick="switchTab('expand-tab')">Expansion / Download</button>
+                        <button class="tab-btn" onclick="switchTab('estimate-tab')">Corpus Estimator</button>
+                    </div>
+
+                    <!-- Discover Tab -->
+                    <div class="tab-pane active" id="discover-tab">
+                        <form id="discover-form" onsubmit="triggerDiscovery(event)">
+                            <div class="form-group">
+                                <label for="discover-limit">Discovery Limit (null = discover all)</label>
+                                <input type="number" id="discover-limit" placeholder="e.g. 10000" min="1">
+                            </div>
+                            <div class="form-group-note">
+                                * Note: Discovery starting offsets are automatically tracked and loaded from checkpoints.
+                            </div>
+                            <div class="btn-group">
+                                <button type="submit" class="btn btn-teal">Start Discovery Task</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Expand Tab -->
+                    <div class="tab-pane" id="expand-tab">
+                        <form id="expand-form" onsubmit="triggerExpansion(event)">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="expand-count">Download Count</label>
+                                    <input type="number" id="expand-count" placeholder="e.g. 5000" min="1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="expand-sort">Sort Order</label>
+                                    <select id="expand-sort">
+                                        <option value="newest" selected>Newest First</option>
+                                        <option value="oldest">Oldest First</option>
+                                        <option value="random">Random</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="expand-start">Pub Year Start (optional)</label>
+                                    <input type="number" id="expand-start" placeholder="e.g. 2020">
+                                </div>
+                                <div class="form-group">
+                                    <label for="expand-end">Pub Year End (optional)</label>
+                                    <input type="number" id="expand-end" placeholder="e.g. 2025">
+                                </div>
+                            </div>
+                            <div class="btn-group">
+                                <button type="submit" class="btn btn-teal">Start Expansion Task</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Estimate Tab -->
+                    <div class="tab-pane" id="estimate-tab">
+                        <form id="estimate-form" onsubmit="getCorpusEstimates(event)">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="est-start">Year Start</label>
+                                    <input type="number" id="est-start" value="2020" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="est-end">Year End</label>
+                                    <input type="number" id="est-end" value="2025" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Evidence Types</label>
+                                <div class="checkbox-grid">
+                                    <label class="check-container">
+                                        <input type="checkbox" name="est-cat" value="rct" checked>
+                                        <span class="checkmark"></span> RCT
+                                    </label>
+                                    <label class="check-container">
+                                        <input type="checkbox" name="est-cat" value="meta_analysis" checked>
+                                        <span class="checkmark"></span> Meta-Analysis
+                                    </label>
+                                    <label class="check-container">
+                                        <input type="checkbox" name="est-cat" value="systematic_review" checked>
+                                        <span class="checkmark"></span> Systematic Review
+                                    </label>
+                                    <label class="check-container">
+                                        <input type="checkbox" name="est-cat" value="guideline" checked>
+                                        <span class="checkmark"></span> Guideline
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-blue" id="est-btn">Calculate Estimates</button>
+                        </form>
+
+                        <div id="est-results" class="estimation-results hidden">
+                            <h4>Corpus Estimates</h4>
+                            <div class="est-grid">
+                                <div class="est-item">
+                                    <span class="lbl">Expected Matches:</span>
+                                    <span class="val" id="est-total-papers-val">0</span>
+                                </div>
+                            </div>
+                            <h4 style="margin-top: 15px;">Storage Footprint Range <span style="font-size: 0.75rem; font-weight: normal; color: #94a3b8;">(Calculated from measured avg paper footprint: <span id="est-avg-kb">0</span> KB)</span></h4>
+                            <div class="est-grid storage-estimates">
+                                <div class="est-item optimistic">
+                                    <span class="lbl">Optimistic (50%):</span>
+                                    <span class="val" id="est-storage-opt">0.0 MB</span>
+                                </div>
+                                <div class="est-item expected">
+                                    <span class="lbl">Expected Average:</span>
+                                    <span class="val" id="est-storage-exp">0.0 MB</span>
+                                </div>
+                                <div class="est-item conservative">
+                                    <span class="lbl">Conservative (180%):</span>
+                                    <span class="val" id="est-storage-cons">0.0 MB</span>
+                                </div>
+                            </div>
+                            <div class="disclaimer-text">
+                                * Note: Estimates are mathematical approximations based on current PubMed search metadata indices and dynamic corpus averages.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status & Progress Matrix Card -->
+                <div class="glass-card matrix-card">
+                    <h3>DISCOVERY MONITORING MATRIX</h3>
+                    <div class="timestamp-row">
+                        <span class="label">Last Discovery Run:</span>
+                        <span class="value" id="last-run-timestamp">Loading...</span>
+                    </div>
+
+                    <table class="matrix-table">
+                        <thead>
+                            <tr>
+                                <th>Evidence Type</th>
+                                <th>Saved Offset</th>
+                                <th>Cataloged in DB</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Randomized Controlled Trial (RCT)</td>
+                                <td id="matrix-offset-rct">0</td>
+                                <td id="matrix-db-rct">0</td>
+                            </tr>
+                            <tr>
+                                <td>Meta-Analysis</td>
+                                <td id="matrix-offset-ma">0</td>
+                                <td id="matrix-db-ma">0</td>
+                            </tr>
+                            <tr>
+                                <td>Systematic Review</td>
+                                <td id="matrix-offset-sr">0</td>
+                                <td id="matrix-db-sr">0</td>
+                            </tr>
+                            <tr>
+                                <td>Clinical Practice Guideline</td>
+                                <td id="matrix-offset-gl">0</td>
+                                <td id="matrix-db-gl">0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Active Query Accordion -->
+            <section class="glass-card accordion-section">
+                <h3>ACTIVE INGESTION QUERIES</h3>
+                <div class="accordion-container">
+                    <div class="accordion-item">
+                        <button class="accordion-header" onclick="toggleAccordion('acc-rct')">Randomized Controlled Trials (RCT)</button>
+                        <div class="accordion-content" id="acc-rct"><pre>Loading...</pre></div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header" onclick="toggleAccordion('acc-ma')">Meta-Analyses</button>
+                        <div class="accordion-content" id="acc-ma"><pre>Loading...</pre></div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header" onclick="toggleAccordion('acc-sr')">Systematic Reviews</button>
+                        <div class="accordion-content" id="acc-sr"><pre>Loading...</pre></div>
+                    </div>
+                    <div class="accordion-item">
+                        <button class="accordion-header" onclick="toggleAccordion('acc-gl')">Clinical Practice Guidelines</button>
+                        <div class="accordion-content" id="acc-gl"><pre>Loading...</pre></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Console Log Output Terminal -->
+            <section class="glass-card console-card">
+                <div class="console-header">
+                    <h3>LIVE PIPELINE RUNNER LOGS</h3>
+                    <button class="btn btn-red btn-sm hidden" id="kill-btn" onclick="killProcess()">Terminate Process</button>
+                </div>
+                <div class="console-body" id="console-logs">
+                    <div class="log-line system">[System] Waiting for task execution...</div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

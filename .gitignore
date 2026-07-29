@@ -1,0 +1,70 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Caches & Test output
+.pytest_cache/
+.cache/
+
+# Environments & Dependencies
+venv/
+.venv/
+env/
+ENV/
+node_modules/
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+
+# Executables, Archives & Binary Assets
+*.exe
+*.zip
+*.tar.gz
+*.tgz
+*.7z
+*.rar
+backend/qdrant_bin/
+backend/qdrant_local/
+
+# Vector Stores & Heavy Data Files
+qdrant_native_data/
+qdrant_storage/
+backend/qdrant_native_data/
+backend/qdrant_storage/
+pmc-pipeline/data/json/
+pmc-pipeline/data/xml/
+pmc-pipeline/data/checkpoints/
+pmc-pipeline/data/metadata/
+pmc-pipeline/data/logs/
+*.dat
+*.bin
+*.vec
+*.parquet
+
+# Databases & SQLite WAL
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+evidence_platform.db
+test_evidence_platform.db
+
+# Logs
+*.log
+hf_container_logs.log
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+*.env
+
+# IDE / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

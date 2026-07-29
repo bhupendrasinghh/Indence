@@ -1,0 +1,22 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Project configuration (contains sensitive API key and email)
+config.yaml
+
+# Data directory (contains downloaded papers, checkpoints, databases, logs)
+data/
+
+# IDE files
+.vscode/
+.idea/
+.DS_Store
